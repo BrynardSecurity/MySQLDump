@@ -46,7 +46,10 @@ function MySQLDump {
 
     Write-Host -Foregroundcolor Yellow "Please wait... Dumping to $($log_file)"
     do {
-            Write-Progress -Activity "Dumping database $($dbName)..."
+            $backupFile=$backupstorefolder"\"$results_file
+            Write-Host -Foregroundcolor Magenta ((Get-File $file).lenth/1KB)
+            Write-Host -Foregroundcolor Cyan ((Get-File $file).lenth/1MB)
+            Write-Host -Foregroundcolor Green ((Get-File $file).lenth/1GB)
         } while(Invoke-Expression $cmd)  
      
     Write-Host -Foregroundcolor Green "Database dump complete!"
