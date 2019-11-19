@@ -18,6 +18,7 @@ $start_time = Get-Date
 $current_backup = $backupstorefolder+"\"+$results_file+"\"+$log_file
 
 <# Functions #>
+
 function BackupDir {
    Write-Host -ForegroundColor Cyan "Verifying file system path for backup root directory..."
    if ((Resolve-Path $root) -ne $False) {
@@ -41,18 +42,21 @@ function BackupDir {
 
 
 function MySQLDump {
-    pushd $mysql_bin
-    $cmd='.\mysqldump.exe --defaults-file=$mysql_defaults --verbose --databases $dbName --extended-insert --routines --disable-keys --result-file $backupstorefolder"\"$results_file 2> $backupstorefolder"\"$log_file'
 
+    $file=$backupstorefolder+$results_file
+
+    pushd $mysql_bin
+    $cmd='.\mysqldump.exe --defaults-file=$mysql_defaults --verbose --databases $dbName --extended-insert --routines --disable-keys --result-file $backupstorefolder$results_file 2> $backupstorefolder"\"$log_file'
+    
     Write-Host -Foregroundcolor Yellow "Please wait... Dumping to $($log_file)"
-    do {
-            $backupFile=$backupstorefolder"\"$results_file
-            Write-Host -Foregroundcolor Magenta ((Get-File $file).lenth/1KB)
-            Write-Host -Foregroundcolor Cyan ((Get-File $file).lenth/1MB)
-            Write-Host -Foregroundcolor Green ((Get-File $file).lenth/1GB)
-        } while(Invoke-Expression $cmd)  
-     
-    Write-Host -Foregroundcolor Green "Database dump complete!"
+
+   
+    Invoke-Expression $cmd
+
+    Write-Host -ForegroundColor Green "MySQL Dump complete! Mysql dump file size: "
+    Write-Host -Foregroundcolor Magenta "Database dump size for $($results_file) in KB: "((Get-Item $file).length/1KB)"KB"
+    Write-Host -Foregroundcolor Cyan "Database dump size for $($results_file) in MB: "((Get-Item $file).length/1MB)"MB"
+    Write-Host -Foregroundcolor Green "Database dump size for $($results_file) in GB: "((Get-Item $file).length/1GB)"GB"
     popd
 }
 
@@ -86,8 +90,9 @@ function CleanUp {
 
 <# Script #>
 #Check to see if folders exist
-Set-ExecutionPolicy -ExecutionPolicy ByPass
+#Set-ExecutionPolicy -ExecutionPolicy ByPass
 BackupDir;
 MySQLDump;
 CompressBackUp;
 CleanUp;
+
